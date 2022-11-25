@@ -84,14 +84,14 @@ class HeaderForm extends Component {
     const bedSelect = ds.bedFile ? ds.bedFile : "none";
     const dataPath = ds.dataPath;
 
-    this.setState((state) => {
-      if (bedSelect !== "none") {
-        this.getBedRegions(bedSelect, dataPath);
-      }
-      if (xgSelect !== "none") {
-        this.getPathNames(xgSelect, dataPath);
-      }
-      const stateVals = {
+    if (bedSelect !== "none") {
+      this.getBedRegions(bedSelect, dataPath);
+    }
+    if (xgSelect !== "none") {
+      this.getPathNames(xgSelect, dataPath);
+    }
+
+    this.setState({
         xgFile: ds.xgFile,
         xgSelect: xgSelect,
         gbwtFile: ds.gbwtFile,
@@ -102,8 +102,6 @@ class HeaderForm extends Component {
         region: ds.region,
         dataType: ds.dataType,
         name: ds.name,
-      };
-      return stateVals;
     });
   };
 
@@ -127,44 +125,34 @@ class HeaderForm extends Component {
         json.bedFiles.unshift("none");
 
         if (this.state.dataPath === "mounted") {
-          this.setState((state) => {
-            const xgSelect = json.xgFiles.includes(state.xgSelect)
-              ? state.xgSelect
-              : "none";
-            const gbwtSelect = json.gbwtFiles.includes(state.gbwtSelect)
-              ? state.gbwtSelect
-              : "none";
-            const gamSelect = json.gamIndices.includes(state.gamSelect)
-              ? state.gamSelect
-              : "none";
-            const bedSelect = json.bedFiles.includes(state.bedSelect)
-              ? state.bedSelect
-              : "none";
-            if (bedSelect !== "none") {
-              this.getBedRegions(bedSelect, "mounted");
-            }
-            if (xgSelect !== "none") {
-              this.getPathNames(xgSelect, "mounted");
-            }
-            return {
-              xgSelectOptions: json.xgFiles,
-              gbwtSelectOptions: json.gbwtFiles,
-              gamSelectOptions: json.gamIndices,
-              bedSelectOptions: json.bedFiles,
-              xgSelect,
-              gbwtSelect,
-              gamSelect,
-              bedSelect,
-            };
+          const xgSelect = json.xgFiles.includes(this.state.xgSelect)
+            ? this.state.xgSelect
+            : "none";
+          const gbwtSelect = json.gbwtFiles.includes(this.state.gbwtSelect)
+            ? this.state.gbwtSelect
+            : "none";
+          const gamSelect = json.gamIndices.includes(this.state.gamSelect)
+            ? this.state.gamSelect
+            : "none";
+          const bedSelect = json.bedFiles.includes(this.state.bedSelect)
+            ? this.state.bedSelect
+            : "none";
+          this.setState({
+            xgSelectOptions: json.xgFiles,
+            gbwtSelectOptions: json.gbwtFiles,
+            gamSelectOptions: json.gamIndices,
+            bedSelectOptions: json.bedFiles,
+            xgSelect,
+            gbwtSelect,
+            gamSelect,
+            bedSelect,
           });
         } else {
-          this.setState((state) => {
-            return {
-              xgSelectOptions: json.xgFiles,
-              gbwtSelectOptions: json.gbwtFiles,
-              gamSelectOptions: json.gamIndices,
-              bedSelectOptions: json.bedFiles,
-            };
+          this.setState({
+            xgSelectOptions: json.xgFiles,
+            gbwtSelectOptions: json.gbwtFiles,
+            gamSelectOptions: json.gamIndices,
+            bedSelectOptions: json.bedFiles,
           });
         }
       }
