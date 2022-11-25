@@ -31,11 +31,32 @@ let root = undefined;
 // Mock clipboard (string)
 let fakeClipboard = undefined;
 
-// This needs to be called by global and per-scope beforeEach
-async function setUp() {
+async function setUpServer() {
   // Start the server
   serverState = await server.start();
+}
 
+// Set up the server once.
+beforeAll(async () => {
+  try {
+    await setUpServer();
+  } catch(e) {
+    throw Error("Failed to start server with error:", e);
+  }
+})
+
+afterAll(async () => {
+  try {
+    // Shut down the server
+    await serverState.close();
+    serverState = undefined;
+  } catch (e) {
+    console.error(e);
+  }
+});
+
+// This needs to be called by global and per-scope beforeEach
+async function setUp() {
   setCopyCallback((value) => (fakeClipboard = value));
 
   // Create the application.
@@ -45,13 +66,6 @@ async function setUp() {
 // This needs to be called by global and per-scope afterEach
 async function tearDown() {
   setCopyCallback(writeToClipboard);
-  try {
-    // Shut down the server
-    await serverState.close();
-    serverState = undefined;
-  } catch (e) {
-    console.error(e);
-  }
 }
 
 // Wait for the loading throbber to appear
