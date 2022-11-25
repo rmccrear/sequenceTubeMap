@@ -60,7 +60,7 @@ class DataPositionFormRow extends Component {
 
   render() {
     return (
-      <Form inline>
+      <Form inline="true">
         &nbsp;
         {this.props.uploadInProgress && (
           <div className="smallLoader" id="fileUploadSpinner" />

@@ -142,7 +142,7 @@ class VisualizationOptions extends Component {
                           Color reads by mapping quality
                         </Label>
                       </FormGroup>
-                      <Form inline>
+                      <Form inline="true">
                         <Label className="mr-sm-2 " for="dataSourceSelect">
                           Mapping Quality Cutoff:
                         </Label>
