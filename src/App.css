@@ -186,3 +186,7 @@ input[type="file"] {
     opacity: 1;
   }
 }
+
+.btn {
+  margin: 2px;
+}
