@@ -14,6 +14,10 @@ it("renders without crashing", () => {
   expect(screen.getByAltText(/Logo/i)).toBeInTheDocument();
 });
 
+it("incorrect addition", () => {
+  expect(1+1).toBe(1);
+});
+
 it("allows the data source to be changed", () => {
   render(<App />);
   expect(screen.getByLabelText(/Data/i).value).toEqual("snp1kg-BRCA1");
