@@ -50,6 +50,7 @@
     "start": "concurrently -n frontend,backend -c red,green 'HOST=${HOST:=127.0.0.1} PORT=${PORT:=3001} react-scripts start' 'npm:serve'",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test:e2e": "playwright test",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
@@ -69,6 +70,7 @@
     "node": ">=10.0.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.30.0",
     "prettier": "^2.7.1",
     "qs": "^6.11.0"
   }
