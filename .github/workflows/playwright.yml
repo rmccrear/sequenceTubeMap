@@ -1,0 +1,35 @@
+name: Playwright Tests
+on:
+  push:
+    branches: [ main, master, e2e-playwright-testci]
+  pull_request:
+    branches: [ main, master ]
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 16
+    - name: Install latest vg release
+      # See https://gist.github.com/steinwaywhw/a4cd19cda655b8249d908261a62687f8 for how we pull out the right URL
+      run: |
+        mkdir -p bin
+        curl -sSL "$(curl -sSL https://api.github.com/repos/vgteam/vg/releases/latest | grep 'browser_download_url.*vg"' | cut -d ':' -f 2,3 | tr -d '"' | sed 's/^ *//g')" >bin/vg
+        chmod +x bin/vg
+    - name: Install dependencies
+      run: npm ci
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+    - name: Start Test Servers and Run Playwright tests
+      run: | 
+        PATH=$PATH:$(pwd)/bin npm start &
+        npx playwright test
+    - uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 30
