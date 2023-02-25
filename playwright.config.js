@@ -21,14 +21,15 @@ module.exports = defineConfig({
      */
     timeout: 5000
   },
-  /* Run tests in files in parallel */
-  fullyParallel: true,
+  /* Running tests in files in parallel fails with the dev server. */
+  fullyParallel: false,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  // workers: process.env.CI ? 1 : undefined,
+  workers: 1, // use one worker so as not to overload the dev server.
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -44,6 +45,7 @@ module.exports = defineConfig({
 
   /* Configure projects for major browsers */
   projects: [
+
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'], headless: true },
@@ -84,9 +86,9 @@ module.exports = defineConfig({
   // outputDir: 'test-results/',
 
   /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run start',
-  //   port: 3000,
-  // },
+  webServer: {
+    command: 'npm run start',
+    port: 3001,
+  },
 });
 

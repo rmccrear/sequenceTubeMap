@@ -161,9 +161,10 @@ test("produces correct link for view before & after go is pressed", async ({ pag
   const expectedLinkCactus =
     "http://localhost:3001?tracks[0][files][0][name]=cactus.vg.xg&tracks[0][files][0][type]=graph&tracks[1][files][0][type]=haplotype&tracks[2][files][0][name]=cactus-NA12879.sorted.gam&tracks[2][files][0][type]=read&tracks[3][files][0][type]=read&bedFile=cactus.bed&name=cactus&region=ref:1-100&dataPath=mounted&dataType=built-in";
   await page.getByRole('button', { name: 'Go' }).click();
-  // await page.getByRole('button', { name: 'Copy link' }).click();
+  // Note: the button doesn't revert to 'Copy link' after go is  clicked
+  // await page.getByRole('button', { name: 'Copy link' }).click(); 
   await button.click();
-  button = await page.getByRole('button', { name: 'Copied Link!' });
+  // button = await page.getByRole('button', { name: 'Copied Link!' });
   linkValue = await button.evaluate((button) => button.dataset.testLink);
   expect(linkValue).toEqual(expectedLinkCactus);
 });
@@ -172,7 +173,13 @@ test("can retrieve the list of mounted graph files", async ({ page }, testInfo) 
   await page.goto('http://localhost:3001/');
   await page.getByLabel('Data:').selectOption('custom (mounted files)')
   expect(await page.getByText('cactus.vg.xg', { exact: true })).not.toBeVisible();
-  await page.getByLabel('graph file:').click();
+
+  // In webkit, for some reason does not open the dropdown in test environment
+  // await page.getByLabel('graph file:').click(); 
+  // We can use the following instead
+  const graphFileInput = await page.$("#graphSelectInput"); // find the input element by id
+  graphFileInput.fill("cactus"); // type our search term
+
   const screenshotAfterClick = await page.screenshot({ fullPage: true });
   await testInfo.attach('screenshot-after-click', { body: screenshotAfterClick, contentType: 'image/png' });
   expect(await page.getByText('cactus.hg', { exact: true })).toBeVisible();
