@@ -17,6 +17,7 @@ const getRegionInput = () => {
   // Helper function to select the Region input box
   return screen.getByRole("combobox", { name: /Region/i });
 };
+
 it("renders without crashing", () => {
   render(<App />);
   expect(screen.getByAltText(/Logo/i)).toBeInTheDocument();
