@@ -18,10 +18,6 @@ const getRegionInput = () => {
   return screen.getByRole("combobox", { name: /Region/i });
 };
 
-it("has a failing test", () => {
-  expect(1).toEqual(2);
-});
-
 it("renders without crashing", () => {
   render(<App />);
   expect(screen.getByAltText(/Logo/i)).toBeInTheDocument();
