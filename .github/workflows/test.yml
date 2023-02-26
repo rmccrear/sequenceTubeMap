@@ -37,7 +37,7 @@ jobs:
       - name: Test build
         run: npm run build
       - name: Run tests
-        run: PATH=$PATH:$(pwd)/bin CI=true npm run test
+        run: PATH=$PATH:$(pwd)/bin CI=true npm run ci:test
       - name: Test Report
         uses: dorny/test-reporter@v1
         if: success() || failure()    # run this step even if previous step failed
