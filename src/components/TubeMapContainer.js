@@ -15,7 +15,23 @@ class TubeMapContainer extends Component {
   };
 
   componentDidMount() {
+    this.fetchCanceler = new AbortController();
+    this.cancelSignal = this.fetchCanceler.signal;
     this.getRemoteTubeMapData();
+  }
+
+  componentWillUnmount() {
+    // Cancel the requests since we may have long running requests pending.
+    this.fetchCanceler.abort();
+  }
+
+  handleFetchError(error, message) {
+    if (!this.cancelSignal.aborted) {
+      console.log(message, error.name, error.message);
+      this.setState({ error: error, isLoading: false });
+    } else {
+      console.log("fetch canceled by componentWillUnmount", error.message);
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -44,7 +60,6 @@ class TubeMapContainer extends Component {
     const { isLoading, error } = this.state;
 
     if (error) {
-      console.log(error);
       const message = error.message ? error.message : error;
       return (
         <div id="tubeMapContainer">
@@ -89,6 +104,7 @@ class TubeMapContainer extends Component {
     this.setState({ isLoading: true, error: null });
     try {
       const json = await fetchAndParse(`${this.props.apiUrl}/getChunkedData`, {
+        signal: this.cancelSignal, // (so we can cancel the fetch request if we will unmount component)
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -98,11 +114,41 @@ class TubeMapContainer extends Component {
       if (json.graph === undefined) {
         // We did not get back a graph, even if we didn't get an error either.
         const error = "Fetching remote data returned error";
-        this.setState({ error: error, isLoading: false });
+        throw new Error(error);
       } else {
         const nodes = tubeMap.vgExtractNodes(json.graph);
         const tracks = tubeMap.vgExtractTracks(json.graph);
-        const reads = tubeMap.vgExtractReads(nodes, tracks, json.gam);
+        // Call vgExtractReads on each individual read and store in readsArr
+        let readsArr = [];
+        for (const gam of Object.values(json.gam)) {
+          // Include readsArr length to prevent duplicate ids
+          readsArr.push(tubeMap.vgExtractReads(nodes, tracks, gam, readsArr.length));
+        }
+        
+        // go through viewTarget and create array of read file track numbers
+        let sourceTrackIDs = [];
+        for (let i = 0; i < this.props.viewTarget.tracks.length; i++) {
+          const track = this.props.viewTarget.tracks[i];
+          //add track index to array if the track contains a gam file
+          for (const file of track.files) {
+            if (file.type === "read") {
+              sourceTrackIDs.push(i);
+              break;
+            }
+          }
+        }
+
+        console.log(sourceTrackIDs);
+        // Go through every read and assign it a source file number
+        for (let i = 0; i < readsArr.length; i++) {
+          for (let j = 0; j < readsArr[i].length; j++) {
+            readsArr[i][j].sourceTrackID = sourceTrackIDs[i];
+          }
+        }
+
+        // concatenate all reads together
+        const reads = readsArr.flat();
+
         const region = json.region;
         this.setState({
           isLoading: false,
@@ -113,12 +159,15 @@ class TubeMapContainer extends Component {
         });
       }
     } catch (error) {
-      this.setState({ error: error, isLoading: false });
+      this.handleFetchError(
+        error,
+        `POST to ${this.props.apiUrl}/getChunkedData failed:`
+      );
     }
   };
 
   getExampleData = async () => {
-    this.setState({ isLoading: true, error: null });
+    this.setState({ isLoading: true });
     // Nodes, tracks, and reads are all required, so start with defaults.
     let nodes = [];
     let tracks = [];

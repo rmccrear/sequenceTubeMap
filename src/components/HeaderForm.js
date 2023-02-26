@@ -9,7 +9,7 @@ import DataPositionFormRow from "./DataPositionFormRow";
 import MountedDataFormRow from "./MountedDataFormRow";
 import FileUploadFormRow from "./FileUploadFormRow";
 import ExampleSelectButtons from "./ExampleSelectButtons";
-import { RegionInput } from "./RegionInput";
+import RegionInput from "./RegionInput";
 // See src/Types.ts
 
 const DATA_SOURCES = config.DATA_SOURCES;
@@ -37,6 +37,7 @@ const CLEAR_STATE = {
   graphSelect: "none",
   gbwtSelect: "none",
   gamSelect: "none",
+  gam2Select: "none",
   bedSelect: "none",
 
   // This tracks several arrays of BED region data, stored by data type, with
@@ -49,6 +50,7 @@ const CLEAR_STATE = {
   graphFile: undefined,
   gbwtFile: undefined,
   gamFile: undefined,
+  gamFile2: undefined,
   bedFile: undefined,
   dataPath: undefined,
   region: "",
@@ -113,9 +115,27 @@ function tracksEqual(curr, next) {
 class HeaderForm extends Component {
   state = EMPTY_STATE;
   componentDidMount() {
+    this.fetchCanceler = new AbortController();
+    this.cancelSignal = this.fetchCanceler.signal;
     this.initState();
     this.getMountedFilenames();
     this.setUpWebsocket();
+  }
+  componentWillUnmount() {
+    // Cancel the requests since we may have long running requests pending.
+    this.fetchCanceler.abort();
+  }
+  handleFetchError(error, message) {
+    if (!this.cancelSignal.aborted) {
+      console.log(message, error.name, error.message);
+      this.setState({ error: error });
+    } else {
+      console.log(
+        "fetch canceled by componentWillUnmount",
+        error.name,
+        error.message
+      );
+    }
   }
   DATA_NAMES = DATA_SOURCES.map((source) => source.name);
 
@@ -125,19 +145,19 @@ class HeaderForm extends Component {
     const graphSelect = ds.graphFile ? ds.graphFile : "none";
     const bedSelect = ds.bedFile ? ds.bedFile : "none";
     const dataPath = ds.dataPath;
-
+    if (bedSelect !== "none") {
+      this.getBedRegions(bedSelect, dataPath);
+    }
+    if (graphSelect !== "none") {
+      this.getPathNames(graphSelect, dataPath);
+    }
     this.setState((state) => {
-      if (bedSelect !== "none") {
-        this.getBedRegions(bedSelect, dataPath);
-      }
-      if (graphSelect !== "none") {
-        this.getPathNames(graphSelect, dataPath);
-      }
       const stateVals = {
         graphFile: ds.graphFile,
         graphSelect: graphSelect,
         gbwtFile: ds.gbwtFile,
         gamFile: ds.gamFile,
+        gamFile2: ds.gamFile2,
         bedFile: ds.bedFile,
         bedSelect: bedSelect,
         dataPath: dataPath,
@@ -153,6 +173,7 @@ class HeaderForm extends Component {
     this.setState({ error: null });
     try {
       const json = await fetchAndParse(`${this.props.apiUrl}/getFilenames`, {
+        signal: this.cancelSignal, // (so we can cancel the fetch request if we will unmount component)
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -160,7 +181,8 @@ class HeaderForm extends Component {
       });
       if (json.graphFiles === undefined) {
         // We did not get back a graph, only (possibly) an error.
-        const error = json.error || "Listing file names";
+        const error =
+          json.error || "Server did not return a list of mounted filenames.";
         this.setState({ error: error });
       } else {
         json.graphFiles.unshift("none");
@@ -179,6 +201,9 @@ class HeaderForm extends Component {
             const gamSelect = json.gamIndices.includes(state.gamSelect)
               ? state.gamSelect
               : "none";
+            const gam2Select = json.gamIndices.includes(state.gam2Select)
+              ? state.gam2Select
+              : "none";
             const bedSelect = json.bedFiles.includes(state.bedSelect)
               ? state.bedSelect
               : "none";
@@ -196,6 +221,7 @@ class HeaderForm extends Component {
               graphSelect,
               gbwtSelect,
               gamSelect,
+              gam2Select,
               bedSelect,
             };
           });
@@ -211,8 +237,10 @@ class HeaderForm extends Component {
         }
       }
     } catch (error) {
-      this.setState({ error: error });
-      console.error(`GET to ${this.props.apiUrl}/getFilenames failed:`, error);
+      this.handleFetchError(
+        error,
+        `GET to ${this.props.apiUrl}/getFilenames failed:`
+      );
     }
   };
 
@@ -220,6 +248,7 @@ class HeaderForm extends Component {
     this.setState({ error: null });
     try {
       const json = await fetchAndParse(`${this.props.apiUrl}/getBedRegions`, {
+        signal: this.cancelSignal, // (so we can cancel the fetch request if we will unmount component)
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -227,9 +256,7 @@ class HeaderForm extends Component {
         body: JSON.stringify({ bedFile, dataPath }),
       });
       // We need to do all our parsing here, if we expect the catch to catch errors.
-      let bedRegionsDesc = json.bedRegions["desc"];
-
-      if (!(bedRegionsDesc instanceof Array)) {
+      if (!json.bedRegions || !(json.bedRegions["desc"] instanceof Array)) {
         throw new Error(
           "Server did not send back an array of BED region descriptions"
         );
@@ -241,11 +268,10 @@ class HeaderForm extends Component {
         };
       });
     } catch (error) {
-      console.error(
-        `POST to ${this.props.apiUrl}/getBedRegions failed:`,
-        error
+      this.handleFetchError(
+        error,
+        `POST to ${this.props.apiUrl}/getBedRegions failed:`
       );
-      this.setState({ error: error });
     }
   };
 
@@ -259,6 +285,7 @@ class HeaderForm extends Component {
     this.setState({ error: null });
     try {
       const json = await fetchAndParse(`${this.props.apiUrl}/getPathNames`, {
+        signal: this.cancelSignal, // (so we can cancel the fetch request if we will unmount component)
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -276,8 +303,10 @@ class HeaderForm extends Component {
         };
       });
     } catch (error) {
-      console.error(`POST to ${this.props.apiUrl}/getPathNames failed:`, error);
-      this.setState({ error: error });
+      this.handleFetchError(
+        error,
+        `POST to ${this.props.apiUrl}/getPathNames failed:`
+      );
     }
   };
 
@@ -299,6 +328,7 @@ class HeaderForm extends Component {
           graphFile: state.graphSelect,
           gbwtFile: state.gbwtSelect,
           gamFile: state.gamSelect,
+          gamFile2: state.gam2Select,
           bedFile: "none",
           // not sure why we would like to keep the previous selection when changing data sources. What I know is it creates a bug for the regions, where the tubemap tries to read the previous bedFile (e.g. defaulted to example 1), can't find it and raises an error
           // bedFile: state.bedSelect,
@@ -329,6 +359,7 @@ class HeaderForm extends Component {
             graphSelect: ds.graphFile,
             gbwtFile: ds.gbwtFile,
             gamFile: ds.gamFile,
+            gamFile2: ds.gamFile2,
             bedFile: ds.bedFile,
             bedSelect: bedSelect,
             dataPath: dataPath,
@@ -342,9 +373,14 @@ class HeaderForm extends Component {
     }
   };
   getNextViewTarget = () => ({
-    tracks: new Array(createTrack({name: this.state.graphFile, type: fileTypes.GRAPH}), 
-                      createTrack({name: this.state.gbwtFile, type: fileTypes.HAPLOTYPE}), 
-                      createTrack({name: this.state.gamFile, type: fileTypes.READ})),
+
+    tracks: [
+      createTrack({name: this.state.graphFile, type: fileTypes.GRAPH}), 
+      createTrack({name: this.state.gbwtFile, type: fileTypes.HAPLOTYPE}), 
+      createTrack({name: this.state.gamFile, type: fileTypes.READ}),
+      createTrack({name: this.state.gamFile2, type: fileTypes.READ})
+    ],
+
     bedFile: this.state.bedFile,
     name: this.state.name,
     region: this.state.region,
@@ -419,6 +455,8 @@ class HeaderForm extends Component {
       this.setState({ gbwtFile: value });
     } else if (id === "gamSelect") {
       this.setState({ gamFile: value });
+    } else if (id === "gam2Select") {
+      this.setState({ gamFile2: value });
     } else if (id === "bedSelect") {
       if (value !== "none") {
         this.getBedRegions(value, this.state.dataPath);
@@ -568,6 +606,7 @@ class HeaderForm extends Component {
                   gbwtSelect={this.state.gbwtSelect}
                   gbwtSelectOptions={this.state.gbwtSelectOptions}
                   gamSelect={this.state.gamSelect}
+                  gam2Select={this.state.gam2Select}
                   gamSelectOptions={this.state.gamSelectOptions}
                   bedSelect={this.state.bedSelect}
                   bedSelectOptions={this.state.bedSelectOptions}

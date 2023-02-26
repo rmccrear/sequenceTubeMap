@@ -10,6 +10,7 @@ import HeaderForm from "./components/HeaderForm";
 import TubeMapContainer from "./components/TubeMapContainer";
 import { urlParamsToViewTarget } from "./components/CopyLink";
 import CustomizationAccordion from "./components/CustomizationAccordion";
+import Footer from "./components/Footer";
 import { dataOriginTypes } from "./enums";
 import * as tubeMap from "./util/tubemap";
 import config from "./config.json";
@@ -35,10 +36,12 @@ class App extends Component {
         transparentNodes: false,
         showReads: true,
         showSoftClips: true,
-        haplotypeColors: "ygreys",
-        forwardReadColors: "reds",
-        reverseReadColors: "blues",
         colorReadsByMappingQuality: false,
+        colorSchemes: [
+                  {...config.defaultHaplotypeColorPallete},
+                  {...config.defaultHaplotypeColorPallete},
+                  {...config.defaultReadColorPallete},
+                  {...config.defaultReadColorPallete}],
         mappingQualityCutoff: 0,
       },
     };
@@ -53,13 +56,17 @@ class App extends Component {
     tubeMap.setTransparentNodesFlag(visOptions.transparentNodes);
     tubeMap.setShowReadsFlag(visOptions.showReads);
     tubeMap.setSoftClipsFlag(visOptions.showSoftClips);
-    tubeMap.setColorSet("haplotypeColors", visOptions.haplotypeColors);
-    tubeMap.setColorSet("forwardReadColors", visOptions.forwardReadColors);
-    tubeMap.setColorSet("reverseReadColors", visOptions.reverseReadColors);
-    tubeMap.setColorReadsByMappingQualityFlag(
-      visOptions.colorReadsByMappingQuality
-    );
+
+    // apply new colorReadsByMappingQuality value to all tracks
+    // to be changed, add options to change colorReadsByMappingQuality individually
+    tubeMap.setColorReadsByMappingQualityFlag(visOptions.colorReadsByMappingQuality);
+
+    for (let i = 0; i < visOptions.colorSchemes.length; i++) {
+      // update tubemap colors 
+      tubeMap.setColorSet(i, visOptions.colorSchemes[i]);
+    }
     tubeMap.setMappingQualityCutoff(visOptions.mappingQualityCutoff);
+
   }
   /*
    * Drop undefined values
@@ -114,11 +121,24 @@ class App extends Component {
     }));
   };
 
-  setColorSetting = (key, value) => {
+  // Set a color scheme setting for a particular track.
+  //
+  // key is the name of the setting to set, and may be "mainPallete", "auxPallete", or "colorByMappingQuality".
+  //
+  // index is the index in the tracks array of the track to operate on. For now,
+  // haplotypes and paths are lumped together as track 0 here, with up to two
+  // tracks of reads afterward; eventually this will follow the indexing of the real
+  // tracks array. 
+  //
+  // value is the value to set. For "mainPallete" and "auxPallete" this is the name
+  // of a color palette, such as "reds".
+  setColorSetting = (key, index, value) => {
+    let newcolors = [...this.state.visOptions.colorSchemes]
+    newcolors[index][key] = value;
     this.setState((state) => ({
       visOptions: {
         ...state.visOptions,
-        [key]: value,
+        colors: newcolors,
       },
     }));
   };
@@ -152,6 +172,7 @@ class App extends Component {
           }
           setColorSetting={this.setColorSetting}
         />
+        <Footer/>
       </div>
     );
   }

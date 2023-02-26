@@ -22,7 +22,6 @@ class MountedDataFormRow extends Component {
           onChange={this.props.handleInputChange}
           options={this.props.graphSelectOptions}
         />
-
         <Label
           for="gbwtSelectInput"
           className="customData tight-label mb-2 mr-sm-2 mb-sm-0 ml-2"
@@ -37,7 +36,6 @@ class MountedDataFormRow extends Component {
           onChange={this.props.handleInputChange}
           options={this.props.gbwtSelectOptions}
         />
-
         <Label
           for="gamSelectInput"
           className="customData tight-label mb-2 mr-sm-2 mb-sm-0 ml-2"
@@ -49,6 +47,20 @@ class MountedDataFormRow extends Component {
           id="gamSelect"
           inputId="gamSelectInput"
           value={this.props.gamSelect}
+          onChange={this.props.handleInputChange}
+          options={this.props.gamSelectOptions}
+        />
+        <Label
+          for="gam2SelectInput"
+          className="customData tight-label mb-2 mr-sm-2 mb-sm-0 ml-2"
+        >
+          gam index 2:
+        </Label>
+        <SelectionDropdown
+          className="customDataMounted dropdown mb-2 mr-sm-4 mb-sm-0"
+          id="gam2Select"
+          inputId="gam2SelectInput"
+          value={this.props.gam2Select}
           onChange={this.props.handleInputChange}
           options={this.props.gamSelectOptions}
         />
