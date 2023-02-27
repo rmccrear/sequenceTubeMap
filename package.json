@@ -50,10 +50,13 @@
     "start": "concurrently -n frontend,backend -c red,green 'HOST=${HOST:=127.0.0.1} PORT=${PORT:=3001} react-scripts start' 'npm:serve'",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "ci:test": "CI=true react-scripts test --runInBand --reporters=jest-junit --reporters=default",
+    "test:e2e": "playwright test",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
     "serve": "node ./src/server.js",
+    "test-serve": "node ./src/server.js &>./server-output.log",
     "format": "prettier --write \"**/*.+(js|css)\""
   },
   "eslintConfig": {
@@ -69,7 +72,17 @@
     "node": ">=10.0.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.30.0",
+    "jest-junit": "^15.0.0",
     "prettier": "^2.7.1",
-    "qs": "^6.11.0"
+    "qs": "^6.11.0",
+    "serve": "^14.2.0"
+  },
+  "jest-junit": {
+    "suiteName": "jest tests",
+    "outputDirectory": "./reports/junit",
+    "outputName": "junit.xml",
+    "ancestorSeparator": " › ",
+    "usePathForSuiteName": "true"
   }
 }

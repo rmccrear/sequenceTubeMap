@@ -19,6 +19,7 @@ export function CopyLink(props) {
   // Button to copy a link with viewTarget to the data selected
 
   const [text, setText] = useState(UNCLICKED_TEXT);
+  const [link, setLink] = useState(null); // for e2e testing
 
   const handleCopyLink = () => {
     // Turn viewTarget into a URL query string
@@ -30,13 +31,14 @@ export function CopyLink(props) {
     const full = window.location.origin + "?" + params;
     console.log(full);
     copyCallback(full);
+    setLink(full);
 
     // Write link to clipboard
     // Update button text to show we've copied
     setText(CLICKED_TEXT);
   };
   return (
-    <Button id="copyLinkButton" color="primary" onClick={handleCopyLink}>
+    <Button id="copyLinkButton" color="primary" data-test-link={link} onClick={handleCopyLink}>
       <FontAwesomeIcon icon={faLink} size="lg" />
       {text}
     </Button>

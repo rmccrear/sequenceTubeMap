@@ -166,14 +166,14 @@ class VisualizationOptions extends Component {
                     rowHeading="Haplotypes Forward"
                     color={visOptions.colorSchemes[1].mainPallete}
                     trackType="mainPallete"
-                    index="1"
+                    index={1}
                     setColorSetting={this.props.setColorSetting}
                   />
                   <RadioRow
                     rowHeading="Haplotypes Reverse"
                     color={visOptions.colorSchemes[1].auxPallete}
                     trackType="auxPallete"
-                    index="1"
+                    index={1}
                     setColorSetting={this.props.setColorSetting}
                   />
                   {visOptions.showReads && (
@@ -182,28 +182,28 @@ class VisualizationOptions extends Component {
                           rowHeading="Gam1 Forward"
                           color={visOptions.colorSchemes[2].mainPallete}
                           trackType="mainPallete"
-                          index="2"
+                          index={2}
                           setColorSetting={this.props.setColorSetting}
                         />
                         <RadioRow
                           rowHeading="Gam1 Reverse"
                           color={visOptions.colorSchemes[2].auxPallete}
                           trackType="auxPallete"
-                          index="2"
+                          index={2}
                           setColorSetting={this.props.setColorSetting}
                         />
                         <RadioRow
                           rowHeading="Gam2 Forward"
                           color={visOptions.colorSchemes[3].mainPallete}
                           trackType="mainPallete"
-                          index="3"
+                          index={3}
                           setColorSetting={this.props.setColorSetting}
                         />
                         <RadioRow
                           rowHeading="Gam2 Reverse"
                           color={visOptions.colorSchemes[3].auxPallete}
                           trackType="auxPallete"
-                          index="3"
+                          index={3}
                           setColorSetting={this.props.setColorSetting}
                         />
                       </React.Fragment>
