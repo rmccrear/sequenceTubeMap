@@ -23,7 +23,9 @@ jobs:
       run: npm ci
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
-    - name: Start Test Servers and Run Playwright tests
+    - name: Build Frontend
+      run: npm build
+    - name: Run Playwright tests
       run: | 
         npx playwright test
     - name: Summary Test Report
@@ -38,4 +40,10 @@ jobs:
       with:
         name: playwright-report
         path: playwright-report/
-        retention-days: 30
+        retention-days: 7 
+    - uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: server-output.log
+        path: .
+        retention-days: 7

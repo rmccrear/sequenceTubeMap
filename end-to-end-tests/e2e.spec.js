@@ -1,6 +1,8 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
 
+const startUrl = 'http://localhost:3000';
+
 // The SVG is loaded asynchronously, so we need to wait for it to be loaded.
 // One way we can do this by waiting until the number of paths in the SVG is what we expect.
 const waitForSVGLoad = async (page, expectedPathCount) => {
@@ -20,12 +22,12 @@ const checkForHiddenTitleOnPaths = async (page, nodeId, expectedTitle) => {
 
 // This test is flaky, sometimes the loader is removed before the test locates it.
 // test("initially renders as loading", async ({page}) => {
-//   await page.goto('http://localhost:3001/');
+//   await page.goto(startUrl);
 //   await expect(page.locator('#loader')).toBeVisible();
 // });
 
 test("populates the available example dropdown", async ({ page }, testInfo) => {
-  await page.goto('http://localhost:3001/');
+  await page.goto(startUrl);
   const select = await page.getByLabel('Data:');
   // get the values of the options in the select
   const optionValues = await select.evaluate((select) => Array.from(select.querySelectorAll('option')).map((option) => option.value));
@@ -35,7 +37,7 @@ test("populates the available example dropdown", async ({ page }, testInfo) => {
 });
 
 test('eventually stops rendering as loading', async ({ page }, testInfo) => {
-  await page.goto('http://localhost:3001/');
+  await page.goto(startUrl);
   // await page.waitForSelector('#loader'); // This sometimes doesn't catch the loader in time
   // await expect(page.locator('#loader')).toBeVisible(); // This sometimes doesn't catch the loader in time
   await page.waitForSelector('#loader', { state: 'hidden' });
@@ -60,7 +62,7 @@ test('eventually stops rendering as loading', async ({ page }, testInfo) => {
 //  });
 
 test('the regions from the BED files are loaded', async ({ page }, testInfo) => {
-  await page.goto('http://localhost:3001/');
+  await page.goto(startUrl);
   // await page.locator('#regionInput').click();
   await page.getByLabel('Region').click();
   const option = await page.getByRole('option', { name: '17_1_100' });
@@ -71,7 +73,7 @@ test('the regions from the BED files are loaded', async ({ page }, testInfo) => 
 });
 
 test('the region options in autocomplete are cleared after selecting new data', async ({ page }, testInfo) => {
-  await page.goto('http://localhost:3001/');
+  await page.goto(startUrl);
 
   await page.getByLabel('Region').click();
   const option = await page.getByRole('option', { name: '17_1_100' });
@@ -95,7 +97,7 @@ test('the region options in autocomplete are cleared after selecting new data', 
 });
 
 test("draws an SVG for synthetic data example 1", async ({ page }, testInfo) => {
-  await page.goto('http://localhost:3001/');
+  await page.goto(startUrl);
   await page.getByLabel('Data:').selectOption('examples');
   const screenshotBeforeClick = await page.screenshot({ fullPage: true });
   await testInfo.attach('screenshot-before-click', { body: screenshotBeforeClick, contentType: 'image/png' });
@@ -111,7 +113,7 @@ test("draws an SVG for synthetic data example 1", async ({ page }, testInfo) => 
 });
 
 test('draws the right SVG for vg "small"', async ({ page }, testInfo) => {
-  await page.goto('http://localhost:3001/');
+  await page.goto(startUrl);
   await page.getByLabel('Data:').selectOption('vg "small" example');
   const input = await page.$("[data-testid='autocomplete'] input");
   await input.fill('node:1+10');
@@ -146,10 +148,10 @@ test('draws the right SVG for vg "small"', async ({ page }, testInfo) => {
 });
 
 test("produces correct link for view before & after go is pressed", async ({ page }) => {
-  await page.goto('http://localhost:3001/');
+  await page.goto(startUrl);
   // First test that after pressing go, the link reflects the dat form
   const expectedLinkBRCA1 =
-    "http://localhost:3001?tracks[0][files][0][name]=snp1kg-BRCA1.vg.xg&tracks[0][files][0][type]=graph&tracks[1][files][0][name]=&tracks[1][files][0][type]=haplotype&tracks[2][files][0][name]=NA12878-BRCA1.sorted.gam&tracks[2][files][0][type]=read&name=snp1kg-BRCA1&graphFile=snp1kg-BRCA1.vg.xg&gamFile=NA12878-BRCA1.sorted.gam&dataPath=default&region=17:1-100&bedFile=snp1kg-BRCA1.bed&dataType=built-in";
+    `${startUrl}?tracks[0][files][0][name]=snp1kg-BRCA1.vg.xg&tracks[0][files][0][type]=graph&tracks[1][files][0][name]=&tracks[1][files][0][type]=haplotype&tracks[2][files][0][name]=NA12878-BRCA1.sorted.gam&tracks[2][files][0][type]=read&name=snp1kg-BRCA1&graphFile=snp1kg-BRCA1.vg.xg&gamFile=NA12878-BRCA1.sorted.gam&dataPath=default&region=17:1-100&bedFile=snp1kg-BRCA1.bed&dataType=built-in`;
   await page.getByLabel('Data:').selectOption('snp1kg-BRCA1');
   await page.getByRole('button', { name: 'Go' }).click();
   await page.getByRole('button', { name: 'Copy link' }).click();
@@ -159,7 +161,7 @@ test("produces correct link for view before & after go is pressed", async ({ pag
 
   await page.getByLabel('Data:').selectOption('cactus');
   const expectedLinkCactus =
-    "http://localhost:3001?tracks[0][files][0][name]=cactus.vg.xg&tracks[0][files][0][type]=graph&tracks[1][files][0][type]=haplotype&tracks[2][files][0][name]=cactus-NA12879.sorted.gam&tracks[2][files][0][type]=read&tracks[3][files][0][type]=read&bedFile=cactus.bed&name=cactus&region=ref:1-100&dataPath=mounted&dataType=built-in";
+    `${startUrl}?tracks[0][files][0][name]=cactus.vg.xg&tracks[0][files][0][type]=graph&tracks[1][files][0][type]=haplotype&tracks[2][files][0][name]=cactus-NA12879.sorted.gam&tracks[2][files][0][type]=read&tracks[3][files][0][type]=read&bedFile=cactus.bed&name=cactus&region=ref:1-100&dataPath=mounted&dataType=built-in`;
   await page.getByRole('button', { name: 'Go' }).click();
   // Note: the button doesn't revert to 'Copy link' after go is  clicked
   // await page.getByRole('button', { name: 'Copy link' }).click(); 
@@ -170,7 +172,7 @@ test("produces correct link for view before & after go is pressed", async ({ pag
 });
 
 test("can retrieve the list of mounted graph files", async ({ page }, testInfo) => {
-  await page.goto('http://localhost:3001/');
+  await page.goto(startUrl);
   await page.getByLabel('Data:').selectOption('custom (mounted files)')
   expect(await page.getByText('cactus.vg.xg', { exact: true })).not.toBeVisible();
 
