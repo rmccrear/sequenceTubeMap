@@ -51,13 +51,12 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "ci:test": "CI=true react-scripts test --runInBand --reporters=jest-junit --reporters=default",
-    "start-test-server": "concurrently -n frontend,backend -c red,green 'HOST=${HOST:=127.0.0.1} PORT=${PORT:=3001} react-scripts start' 'npm:test-serve'",
     "test:e2e": "playwright test",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
     "serve": "node ./src/server.js",
-    "test-serve": "PORT=3010 node ./src/server.js &>./server-output.log",
+    "test-serve": "node ./src/server.js &>./server-output.log",
     "format": "prettier --write \"**/*.+(js|css)\""
   },
   "eslintConfig": {
