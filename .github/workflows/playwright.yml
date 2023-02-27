@@ -26,6 +26,13 @@ jobs:
     - name: Start Test Servers and Run Playwright tests
       run: | 
         npx playwright test
+    - name: Summary Test Report
+      uses: dorny/test-reporter@v1
+      if: always()
+      with:
+        name: Playwright Summary Test Report  # Name of the check run which will be created
+        path: reports/playwright/junit.xml    # Path to test results
+        reporter: jest-junit                  # Format of test results
     - uses: actions/upload-artifact@v3
       if: always()
       with:
