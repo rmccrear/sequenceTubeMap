@@ -50,7 +50,7 @@
     "start": "concurrently -n frontend,backend -c red,green 'HOST=${HOST:=127.0.0.1} PORT=${PORT:=3001} react-scripts start' 'npm:serve'",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "ci:test": "react-scripts test --reporter=jest-junit --reporters=default",
+    "ci:test": "react-scripts test --reporters=jest-junit --reporters=default",
     "test:e2e": "playwright test",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
@@ -77,9 +77,9 @@
     "qs": "^6.11.0"
   },
   "jest-junit": {
+    "suiteName": "jest tests",
     "outputDirectory": "./reports/junit",
-    "uniqueOutputName": "false",
+    "outputName": "junit.xml",
     "ancestorSeparator": " › ",
     "usePathForSuiteName": "true"
-  }
-}
+  }}
