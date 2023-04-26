@@ -358,6 +358,7 @@ it("can retrieve the list of mounted graph files", async () => {
 
   // Find the select box's input
   let graphSelectInput = screen.getByLabelText(/graph file:/i);
+  expect(false).toBeTruthy();
   expect(graphSelectInput).toBeTruthy();
 
   // We shouldn't see the option before we open the dropdown
