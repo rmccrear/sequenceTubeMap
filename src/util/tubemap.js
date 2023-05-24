@@ -1119,7 +1119,7 @@ function alignSVG() {
       "height",
       (maxYCoordinate - minYCoordinate + 50) * d3.event.transform.k
     );
-    // adjust width to compensate for verical scroll bar appearing
+    // adjust width to compensate for vertical scroll bar appearing
     svg2.attr("width", document.getElementById("tubeMapSVG").clientWidth);
   }
 
