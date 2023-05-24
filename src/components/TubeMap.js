@@ -12,8 +12,14 @@ class TubeMap extends Component {
     }
   }
 
-  componentDidUpdate() {
-    this.createTubeMap();
+  componentDidUpdate(prevProps) {
+    if(prevProps.nodes !== this.props.nodes   ||
+       prevProps.tracks !== this.props.tracks ||
+       prevProps.reads !== this.props.reads   ||
+       prevProps.region !== this.props.region
+      ){
+      this.createTubeMap();
+    }
     if(this.props.onTrackClick) {
       tubeMap.setEventHandler("trackClick", this.props.onTrackClick);
     } else {

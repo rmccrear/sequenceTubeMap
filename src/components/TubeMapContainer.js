@@ -7,12 +7,26 @@ import TubeMap from "./TubeMap";
 import * as tubeMap from "../util/tubemap";
 import { dataOriginTypes } from "../enums";
 import { fetchAndParse } from "../fetchAndParse";
+import TrackInfoPopper from "./TrackInfoPopper";
 
 class TubeMapContainer extends Component {
   state = {
     isLoading: true,
     error: null,
   };
+
+  onTrackClick = (title, trackID, elm) => {
+    this.setState({
+      trackInfo: title,
+      trackDialogOpen: true,
+      trackDialogTitle: title,
+      trackElm: elm
+    });
+  }
+
+  handleCloseTrackInfo = () => {
+    this.setState({trackDialogOpen: false, trackElm: null});
+  }
 
   componentDidMount() {
     this.fetchCanceler = new AbortController();
@@ -55,7 +69,7 @@ class TubeMapContainer extends Component {
       }
     }
     // updating visOptions will cause an error if the tubemap is not in place yet.
-    if(!this.state.isLoading) {
+    if(!this.state.isLoading && prevProps.visOptions !== this.props.visOptions) {
       this.updateVisOptions();
     }
   }
@@ -119,9 +133,14 @@ class TubeMapContainer extends Component {
             tracks={this.state.tracks}
             reads={this.state.reads}
             region={this.state.region}
-            onTrackClick={this.props.onTrackClick}
+            onTrackClick={this.onTrackClick}
           />
         </div>
+       <TrackInfoPopper
+          content={this.state.trackInfo} 
+          anchorEl={this.state.trackElm}
+          handleClose={()=>this.setState({trackElm: null})}
+        />
       </div>
     );
   }
