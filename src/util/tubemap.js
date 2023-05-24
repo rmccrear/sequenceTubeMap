@@ -3245,7 +3245,7 @@ const eventHandlerBase = {
   trackClick: function() {
     const trackID = d3.select(this).attr("trackID"); 
     const titleElm = this.querySelector("title");
-    const title = titleElm.textContent;
+    const title = titleElm ? titleElm.textContent : "";
     if(eventHandlers.trackClick){
       eventHandlers.trackClick(title, trackID, this);
     }
