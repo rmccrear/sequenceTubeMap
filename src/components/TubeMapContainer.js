@@ -119,6 +119,7 @@ class TubeMapContainer extends Component {
             tracks={this.state.tracks}
             reads={this.state.reads}
             region={this.state.region}
+            onTrackClick={this.props.onTrackClick}
           />
         </div>
       </div>
@@ -264,6 +265,7 @@ TubeMapContainer.propTypes = {
   dataOrigin: PropTypes.oneOf(Object.values(dataOriginTypes)).isRequired,
   viewTarget: PropTypes.object.isRequired,
   visOptions: PropTypes.object.isRequired,
+  onTrackClick: PropTypes.func
 };
 
 export default TubeMapContainer;

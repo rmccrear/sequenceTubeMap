@@ -5,10 +5,20 @@ import * as tubeMap from "../util/tubemap";
 class TubeMap extends Component {
   componentDidMount() {
     this.createTubeMap();
+    if(this.props.onTrackClick) {
+      tubeMap.setEventHandler("trackClick", this.props.onTrackClick);
+    } else {
+      tubeMap.setEventHandler("trackClick", null); 
+    }
   }
 
   componentDidUpdate() {
     this.createTubeMap();
+    if(this.props.onTrackClick) {
+      tubeMap.setEventHandler("trackClick", this.props.onTrackClick);
+    } else {
+      tubeMap.setEventHandler("trackClick", null); 
+    }
   }
 
   createTubeMap = () => {
@@ -31,6 +41,7 @@ TubeMap.propTypes = {
   tracks: PropTypes.array.isRequired,
   reads: PropTypes.array.isRequired,
   region: PropTypes.array.isRequired,
+  onTrackClick: PropTypes.func
 };
 
 export default TubeMap;

@@ -13,6 +13,8 @@ import CustomizationAccordion from "./components/CustomizationAccordion";
 import Footer from "./components/Footer";
 import { dataOriginTypes } from "./enums";
 import config from "./config.json";
+import TrackInfoDialog from "./components/TrackInfoDialog";
+import TrackInfoPopper from "./components/TrackInfoPopper";
 
 class App extends Component {
   constructor(props) {
@@ -22,6 +24,9 @@ class App extends Component {
     this.defaultViewTarget =
       urlParamsToViewTarget(document.location) ?? config.DATA_SOURCES[0];
     this.state = {
+      trackDialogOpen: false,
+      trackInfo: '',
+      trackDialogTitle: '',
       // These describe the files on the server side that we are working on.
       // This is a little like dataPath (inside viewTarget, which specifies if we're using mounted/built-in data),
       // but lets us toggle between data from
@@ -125,6 +130,19 @@ class App extends Component {
     this.setState({ dataOrigin });
   };
 
+  onTrackClick = (title, trackID, elm) => {
+    this.setState({
+      trackInfo: ( <div><div>Your track is {title}</div><div>TrackID: {trackID}</div></div> ), 
+      trackDialogOpen: true,
+      trackDialogTitle: title,
+      trackElm: elm
+    });
+  }
+
+  handleCloseTrackInfo = () => {
+    this.setState({trackDialogOpen: false, trackElm: null});
+  }
+
   render() {
     return (
       <div>
@@ -142,6 +160,17 @@ class App extends Component {
           dataOrigin={this.state.dataOrigin}
           apiUrl={this.props.apiUrl}
           visOptions={this.state.visOptions}
+          onTrackClick={this.onTrackClick}
+        />
+        {/* <TrackInfoPopper
+          content={this.state.trackInfo} 
+          anchorEl={this.state.trackElm}
+        /> */}
+        <TrackInfoDialog 
+          content={this.state.trackInfo} 
+          title={this.state.trackDialogTitle}
+          open={this.state.trackDialogOpen}
+          handleClose={this.handleCloseTrackInfo}
         />
         <CustomizationAccordion
           visOptions={this.state.visOptions}
