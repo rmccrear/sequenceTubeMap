@@ -13,6 +13,8 @@ class TubeMap extends Component {
   }
 
   componentDidUpdate(prevProps) {
+    // Avoid unnecessary updates.
+    // Particularly updates if only the callback fn is re-initialized.
     if(prevProps.nodes !== this.props.nodes   ||
        prevProps.tracks !== this.props.tracks ||
        prevProps.reads !== this.props.reads   ||
