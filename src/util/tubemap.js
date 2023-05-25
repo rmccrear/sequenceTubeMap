@@ -3240,6 +3240,7 @@ function filterObjectByAttribute(attribute, value) {
   return (item) => item[attribute] === value;
 }
 
+// Keep event handlers which call callbacks here.
 const eventHandlerBase = {
   trackClick: function() {
     const trackID = d3.select(this).attr("trackID"); 
@@ -3251,12 +3252,14 @@ const eventHandlerBase = {
   }
 }
 
+// Keep event handlers that are set with setEventHandler from above here.
 const eventHandlers = {
-  trackClick: (title, trackID) => {if(DEBUG) console.log(`Track ${trackID} clicked (${title}).`);}
+  trackClick: (title, trackID, target) => {if(DEBUG) console.log(`Track ${trackID} clicked (${title}).`);}
 }
 
-// eventName must be one of: ["trackClick"]
-// callback function must accept the arguments: title, trackID
+// eventName must be "trackClick". 
+// callback function must accept the arguments: title, trackID, targetElm
+// The ability to handle more events could be added later in a similar fashion.
 export function setEventHandler(eventName, eventHandler) {
   eventHandlers[eventName] = eventHandler;
 }
