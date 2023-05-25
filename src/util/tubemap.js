@@ -14,8 +14,7 @@ import externalConfig from "../config.json";
 
 const deepEqual = require("deep-equal");
 
-//const DEBUG = false;
-const DEBUG = true;
+const DEBUG = false;
 
 const greys = [
   "#d9d9d9",
