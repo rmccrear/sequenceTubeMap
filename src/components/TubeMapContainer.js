@@ -284,7 +284,6 @@ TubeMapContainer.propTypes = {
   dataOrigin: PropTypes.oneOf(Object.values(dataOriginTypes)).isRequired,
   viewTarget: PropTypes.object.isRequired,
   visOptions: PropTypes.object.isRequired,
-  onTrackClick: PropTypes.func
 };
 
 export default TubeMapContainer;
