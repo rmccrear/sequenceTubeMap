@@ -31,7 +31,12 @@ class TubeMapContainer extends Component {
   componentDidMount() {
     this.fetchCanceler = new AbortController();
     this.cancelSignal = this.fetchCanceler.signal;
-    this.getRemoteTubeMapData();
+    // this.getRemoteTubeMapData();
+    if( this.props.dataOrigin === dataOriginTypes.API) {
+      this.getRemoteTubeMapData()
+    } else {
+      this.getExampleData();
+    }
   }
 
   componentWillUnmount() {
