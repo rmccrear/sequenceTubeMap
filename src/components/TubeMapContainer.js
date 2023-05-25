@@ -69,7 +69,7 @@ class TubeMapContainer extends Component {
       }
     }
     // updating visOptions will cause an error if the tubemap is not in place yet.
-    if(!this.state.isLoading && prevProps.visOptions !== this.props.visOptions) {
+    if(!this.state.isLoading) {
       this.updateVisOptions();
     }
   }
