@@ -1119,7 +1119,7 @@ function alignSVG() {
       "height",
       (maxYCoordinate - minYCoordinate + 50) * d3.event.transform.k
     );
-    // adjust width to compensate for verical scroll bar appearing
+    // adjust width to compensate for vertical scroll bar appearing
     svg2.attr("width", document.getElementById("tubeMapSVG").clientWidth);
   }
 
@@ -3240,6 +3240,27 @@ function filterObjectByAttribute(attribute, value) {
   return (item) => item[attribute] === value;
 }
 
+const eventHandlerBase = {
+  trackClick: function() {
+    const trackID = d3.select(this).attr("trackID"); 
+    const titleElm = this.querySelector("title");
+    const title = titleElm ? titleElm.textContent : "";
+    if(eventHandlers.trackClick){
+      eventHandlers.trackClick(title, trackID, this);
+    }
+  }
+}
+
+const eventHandlers = {
+  trackClick: (title, trackID) => {if(DEBUG) console.log(`Track ${trackID} clicked (${title}).`);}
+}
+
+// eventName must be one of: ["trackClick"]
+// callback function must accept the arguments: title, trackID
+export function setEventHandler(eventName, eventHandler) {
+  eventHandlers[eventName] = eventHandler;
+}
+
 function drawTrackRectangles(rectangles, type) {
   if (typeof type === "undefined") type = "haplo";
   rectangles = rectangles.filter(filterObjectByAttribute("type", type));
@@ -3260,6 +3281,7 @@ function drawTrackRectangles(rectangles, type) {
     .on("mouseover", trackMouseOver)
     .on("mouseout", trackMouseOut)
     .on("dblclick", trackDoubleClick)
+    .on("click", eventHandlerBase.trackClick)
     .append("svg:title")
     .text((d) => getPopUpTrackText(d.name));
 }
@@ -3491,6 +3513,7 @@ function drawTrackCurves(type) {
     .on("mouseover", trackMouseOver)
     .on("mouseout", trackMouseOut)
     .on("dblclick", trackDoubleClick)
+    .on("click", eventHandlerBase.trackClick)
     .append("svg:title")
     .text((d) => getPopUpTrackText(d.name));
 }
@@ -3512,6 +3535,7 @@ function drawTrackCorners(corners, type) {
     .on("mouseover", trackMouseOver)
     .on("mouseout", trackMouseOut)
     .on("dblclick", trackDoubleClick)
+    .on("click", eventHandlerBase.trackClick)
     .append("svg:title")
     .text((d) => getPopUpTrackText(d.name));
 }

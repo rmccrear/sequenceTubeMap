@@ -7,6 +7,7 @@ import TubeMap from "./TubeMap";
 import * as tubeMap from "../util/tubemap";
 import { dataOriginTypes } from "../enums";
 import { fetchAndParse } from "../fetchAndParse";
+import TrackInfoPopper from "./TrackInfoPopper";
 
 class TubeMapContainer extends Component {
   state = {
@@ -14,10 +15,30 @@ class TubeMapContainer extends Component {
     error: null,
   };
 
+  onTrackClick = (title, trackID, elm) => {
+    this.setState({
+      trackInfo: title,
+      trackDialogOpen: true,
+      trackDialogTitle: title,
+      trackElm: elm
+    });
+  }
+
+  handleCloseTrackInfo = () => {
+    this.setState({trackDialogOpen: false, trackElm: null});
+  }
+
   componentDidMount() {
     this.fetchCanceler = new AbortController();
     this.cancelSignal = this.fetchCanceler.signal;
-    this.getRemoteTubeMapData();
+
+    // The default will be API
+    // But for testing we may choose an EXAMPLE data
+    if( this.props.dataOrigin === dataOriginTypes.API) {
+      this.getRemoteTubeMapData()
+    } else {
+      this.getExampleData();
+    }
   }
 
   componentWillUnmount() {
@@ -119,8 +140,14 @@ class TubeMapContainer extends Component {
             tracks={this.state.tracks}
             reads={this.state.reads}
             region={this.state.region}
+            onTrackClick={this.onTrackClick}
           />
         </div>
+       <TrackInfoPopper
+          content={this.state.trackInfo} 
+          anchorEl={this.state.trackElm}
+          handleClose={()=>this.setState({trackElm: null})}
+        />
       </div>
     );
   }
