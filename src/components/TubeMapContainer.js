@@ -31,7 +31,9 @@ class TubeMapContainer extends Component {
   componentDidMount() {
     this.fetchCanceler = new AbortController();
     this.cancelSignal = this.fetchCanceler.signal;
-    // this.getRemoteTubeMapData();
+
+    // The default will be API
+    // But for testing we may choose an EXAMPLE data
     if( this.props.dataOrigin === dataOriginTypes.API) {
       this.getRemoteTubeMapData()
     } else {
