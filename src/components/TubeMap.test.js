@@ -30,7 +30,8 @@ let ex6 = {
     ex6nodes,
     ex6tracks,
     readsFromStringToArray(exampleData.demoReads)
-  ) 
+  ),
+  region: []
 }
 
 describe('TubeMap test', () => {
