@@ -6,7 +6,7 @@ import ClickAwayListener from '@mui/base/ClickAwayListener';
 export default function TrackInfoPopper({content, anchorEl, handleClose}) {
 
   const open = Boolean(anchorEl);
-  const id = open ? 'simple-popper' : undefined;
+  const id = open ? 'track-info-popper' : undefined;
 
   return (
     <div>
