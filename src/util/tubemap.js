@@ -1119,7 +1119,7 @@ function alignSVG() {
       "height",
       (maxYCoordinate - minYCoordinate + 50) * d3.event.transform.k
     );
-    // adjust width to compensate for verical scroll bar appearing
+    // adjust width to compensate for vertical scroll bar appearing
     svg2.attr("width", document.getElementById("tubeMapSVG").clientWidth);
   }
 
@@ -3260,6 +3260,7 @@ function drawTrackRectangles(rectangles, type) {
     .on("mouseover", trackMouseOver)
     .on("mouseout", trackMouseOut)
     .on("dblclick", trackDoubleClick)
+    .on("click", eventHandlerBase.trackClick)
     .append("svg:title")
     .text((d) => getPopUpTrackText(d.name));
 }
@@ -3491,6 +3492,7 @@ function drawTrackCurves(type) {
     .on("mouseover", trackMouseOver)
     .on("mouseout", trackMouseOut)
     .on("dblclick", trackDoubleClick)
+    .on("click", eventHandlerBase.trackClick)
     .append("svg:title")
     .text((d) => getPopUpTrackText(d.name));
 }
@@ -3512,6 +3514,7 @@ function drawTrackCorners(corners, type) {
     .on("mouseover", trackMouseOver)
     .on("mouseout", trackMouseOut)
     .on("dblclick", trackDoubleClick)
+    .on("click", eventHandlerBase.trackClick)
     .append("svg:title")
     .text((d) => getPopUpTrackText(d.name));
 }
@@ -4313,4 +4316,33 @@ function filterReads(reads) {
     (read) =>
       !read.is_secondary && read.mapping_quality >= config.mappingQualityCutoff
   );
+}
+
+// This function allows you to set an event handler for "trackClick"
+// - eventName must be "trackClick". 
+// - callback function must accept the arguments: title, trackID, targetElm
+// The ability to handle more events could be added later in a similar fashion.
+export function setEventHandler(eventName, eventHandler) {
+  eventHandlers[eventName] = eventHandler;
+}
+
+// Event handlers that are set programmatically with setEventHandler are stored here.
+const eventHandlers = {
+  trackClick: (title, trackID, target) => {if(DEBUG) console.log(`Track ${trackID} clicked (${title}).`);}
+}
+
+// Keep event handlers which call the callbacks here.
+// These functions will be called directly by the eventListeners attached to the SVG,
+// so they must be function style, not arrow style => to have access to `this`.
+// To add more, be sure to add them to all the places in the code which create 
+// the elements you need to listen on.
+const eventHandlerBase = {
+  trackClick: function() {
+    const trackID = d3.select(this).attr("trackID"); 
+    const titleElm = this.querySelector("title");
+    const title = titleElm ? titleElm.textContent : "";
+    if(eventHandlers.trackClick){
+      eventHandlers.trackClick(title, trackID, this);
+    }
+  }
 }
